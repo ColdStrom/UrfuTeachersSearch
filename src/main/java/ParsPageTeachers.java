@@ -12,50 +12,82 @@ public class ParsPageTeachers {
     public static void main(String[] args) {
         HashMap<String, Teacher> teachers = new HashMap<>();
         HashMap<String, String> contactsTeachers = new HashMap<>();
+        String abarar = "";
         try {
             var document = Jsoup.connect("https://urfu.ru/ru/about/personal-pages/").get();
             var nameTeacher = document.select("div.text");
-            for (var elements : nameTeacher){
-                //System.out.println(elements.text());
+            for (var elements : nameTeacher) {
+                System.out.println(elements.text());
                 Teacher teacher = new Teacher();
                 String name = elements.child(0).text();
                 String link = elements.child(0).child(0).attr("href").toString();
                 teacher.setName(name);
                 teacher.setPersonalLink(link);
-                teacher.setAddress("empty");
+                if (teacher.getName() == "Алехин Владимир Николаевич"){
+                    abarar = elements.text();
+                }
+                //teacher.setAddress("empty");
                 parsTextTeachers(elements.text(), teacher);
                 teachers.put(name, teacher);
             }
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
-        for (String key : teachers.keySet()){
+        for (String key : teachers.keySet()) {
             teachers.get(key).printTeacher();
         }
+
+        teachers.get("Алехин Владимир Николаевич").printTeacher();
+        System.out.println(abarar);
+
     }
 
-    private static void parsTextTeachers(String text, Teacher teacher){
+    private static void parsTextTeachers(String text, Teacher teacher) {
         int indexNumberPhone = text.indexOf("Телефон");
         int indexEmail = text.indexOf("Электронная почта");
-        if (indexNumberPhone != -1 && indexEmail == -1 ){
+        int indexAddress = -1;
+        String[] streets = {"Тургенева", "Мира", "Куйбышева", "Софьи Ковалевской", "Чапаева", "Коминтерна"};
+        boolean haveAddress = false;
+
+        for (int i = 0; i < streets.length; i++){
+            if (text.contains(streets[i])){
+                haveAddress = true;
+                indexAddress = text.indexOf(streets[i]);
+                break;
+            }
+        }
+        if (indexNumberPhone != -1 && indexEmail == -1) {
             teacher.setNumberPhone(text.substring(indexNumberPhone));
+            if (haveAddress){
+                teacher.setAddress(text.substring(indexAddress, indexNumberPhone - 2));
+            }
         }
-        if (indexEmail != -1 && indexNumberPhone == -1){
+        if (indexEmail != -1 && indexNumberPhone == -1) {
             teacher.setEmail(text.substring(indexEmail));
+            if (haveAddress){
+                teacher.setAddress(text.substring(indexAddress, indexEmail - 1));
+            }
         }
-        if (indexNumberPhone != -1 && indexEmail != -1){
+        if (indexNumberPhone != -1 && indexEmail != -1) {
             teacher.setNumberPhone(text.substring(indexNumberPhone + 9, indexEmail));
             teacher.setEmail(text.substring(indexEmail + 19));
+            if (haveAddress){
+                teacher.setAddress(text.substring(indexAddress, indexNumberPhone - 2));
+            }
         }
         return;
     }
 
-    private static void parsAddress(String text, Teacher teacher){
+    private static void parsAddress(String text, Teacher teacher) {
         String[] streets = {"Тургенева", "Мира", "Куйбышева", "Софьи Ковалевской", "Чапаева", "Коминтерна"};
+        for (int i = 0; i < streets.length; i++){
+            if (text.contains(streets[i])){
+
+            }
+        }
     }
 
 }
-
 
 
 //public class ParsPageTeachers {
@@ -74,7 +106,6 @@ public class ParsPageTeachers {
 //    }
 //
 //}
-
 
 
 //    public static void main(String[] args) {
@@ -99,7 +130,6 @@ public class ParsPageTeachers {
 //            System.out.println(key + ": " + linksTeachers.get(key) + "контакты: " + contactsTeachers.get(key));
 //        }
 //    }
-
 
 
 //    public static void main(String[] args) {
