@@ -1,3 +1,5 @@
+import org.checkerframework.checker.units.qual.A;
+
 import java.util.Objects;
 
 public class BotLogic {
@@ -10,7 +12,8 @@ public class BotLogic {
             todo: Logic оч связана с UI
      */
 
-    public String answer(String message){
+    public String answer(String message, Teachers teachers){
+        AnswerForRequestTeacher answer = new AnswerForRequestTeacher();
         switch (parseUserMessage(message)) {
             case HELP:
                 return StandardAnswer.answerForHelp;
@@ -19,10 +22,7 @@ public class BotLogic {
             case JOKE:
                 return StandardAnswer.answerForJoke;
             case TEACHER:
-                return """
-                        tg: @a_lgnv
-                        Расписание:
-                            Среда: 10:40 - 12:10 каб.517""";
+                return answer.makeAnswer(message, teachers.getTeachers());
         }
         return StandardAnswer.defaultAnswer;
     }

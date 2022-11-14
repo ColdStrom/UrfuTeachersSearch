@@ -6,7 +6,7 @@ public class ConsoleMain {
             Scanner in = new Scanner(System.in);
             String message = in.nextLine();
             BotLogic botLogic = new BotLogic();
-            System.out.println(botLogic.answer(message));
+            //System.out.println(botLogic.answer(message));
         }
     }
 }

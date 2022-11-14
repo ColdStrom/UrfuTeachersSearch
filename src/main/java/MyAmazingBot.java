@@ -5,17 +5,18 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 public class MyAmazingBot extends TelegramLongPollingBot {
 
-    //todo: модификаторы доступа ✅
     private String token = System.getenv("TELEGRAM_BOT_TOKEN");
 
     @Override
     public void onUpdateReceived(Update update) {
         BotLogic botLogic = new BotLogic();
+        Teachers teachers = new Teachers();
+        teachers.parsingPageTeacher();
         // We check if the update has a message and the message has text
         if (update.hasMessage() && update.getMessage().hasText()) {
             SendMessage message = new SendMessage(); // Create a SendMessage object with mandatory fields
             message.setChatId(update.getMessage().getChatId().toString());
-            message.setText(botLogic.answer(update.getMessage().getText()));
+            message.setText(botLogic.answer(update.getMessage().getText(), teachers));
 
             try {
                 execute(message); // Call method to send the message
