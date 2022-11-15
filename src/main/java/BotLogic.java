@@ -1,5 +1,4 @@
-import org.checkerframework.checker.units.qual.A;
-
+import java.util.HashMap;
 import java.util.Objects;
 
 public class BotLogic {
@@ -11,8 +10,14 @@ public class BotLogic {
 
             todo: Logic оч связана с UI
      */
+    private HashMap<String, Teacher> teachers;
+    BotLogic(){
+        Teachers _teachers = new Teachers();
+        _teachers.parsingPageTeacher();
+        teachers = _teachers.getTeachers();
+    }
 
-    public String answer(String message, Teachers teachers){
+    public String answer(String message){
         AnswerForRequestTeacher answer = new AnswerForRequestTeacher();
         switch (parseUserMessage(message)) {
             case HELP:
@@ -22,13 +27,13 @@ public class BotLogic {
             case JOKE:
                 return StandardAnswer.answerForJoke;
             case TEACHER:
-                return answer.makeAnswer(message, teachers.getTeachers());
+                return answer.makeAnswer(message, teachers);
         }
         return StandardAnswer.defaultAnswer;
     }
 
 
-//  todo*: не хардкодить здесь команды, генироровать хелп только по тому, что точно умеем
+//  todo*: не хардкодить здесь команды, генироровать хепл только по тому, что точно умеем
 
 
 
