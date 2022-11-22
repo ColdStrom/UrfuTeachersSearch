@@ -10,15 +10,13 @@ public class BotLogic {
 
             todo: Logic оч связана с UI
      */
-    private HashMap<String, Teacher> teachers;
+    TeacherService teacherService;
     BotLogic(){
-        Teachers _teachers = new Teachers();
-        _teachers.parsingPageTeacher();
-        teachers = _teachers.getTeachers();
+        teacherService = new TeacherService();
     }
 
     public String answer(String message){
-        AnswerForRequestTeacher answer = new AnswerForRequestTeacher();
+        AnswerForRequestTeacher answerForTeacher = new AnswerForRequestTeacher();
         switch (parseUserMessage(message)) {
             case HELP:
                 return StandardAnswer.answerForHelp;
@@ -27,7 +25,12 @@ public class BotLogic {
             case JOKE:
                 return StandardAnswer.answerForJoke;
             case TEACHER:
-                return answer.makeAnswer(message, teachers);
+                try{
+                    Teacher teacher = teacherService.getTeacherByName(message);
+                    return answerForTeacher.makeAnswer(teacher);
+                } catch (RuntimeException error){
+                    return "Я не знаю такого преподователя";
+                }
         }
         return StandardAnswer.defaultAnswer;
     }

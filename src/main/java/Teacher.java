@@ -1,3 +1,5 @@
+import java.util.Vector;
+
 public class Teacher {
     private String name;
     private String personalLink;
@@ -14,7 +16,8 @@ public class Teacher {
         this.email = "";
     }
 
-    Teacher(String _name, String _personalLink, String _address, String _numberPhone, String _email){
+    Teacher(String _name, String _personalLink, String _address, String _numberPhone,
+            String _email) {
         this.name = _name;
         this.address = _address;
         this.personalLink = _personalLink;
@@ -22,23 +25,26 @@ public class Teacher {
         this.numberPhone = _numberPhone;
     }
 
-    void printTeacher(){
-        System.out.println(name + ":" + "\n\t" + address + "\n\t" + personalLink + "\n\t" + email + "\n\t" + numberPhone);
+    void printTeacher() {
+        System.out.println(name + ":" + "\n\t" + address + "\n\t" + personalLink
+                + "\n\t" + email + "\n\t" + numberPhone);
+    }
+
+    void setAll(String _name, String _personalLink, String _address, String _numberPhone, String _email) {
+        this.name = _name;
+        this.address = _address;
+        this.personalLink = _personalLink;
+        this.email = _email;
+        this.numberPhone = _numberPhone;
     }
 
     public String getAddress() {
         return address;
     }
 
-    void setAll(String _name, String _personalLink, String _address, String _numberPhone, String _email){
-        this.name = _name;
-        this.address = _address;
-        this.personalLink = _personalLink;
-        this.email = _email;
-        this.numberPhone = _numberPhone;
+    public String getName() {
+        return name;
     }
-
-    public String getName() { return name; }
 
     public String getPersonalLink() {
         return personalLink;
