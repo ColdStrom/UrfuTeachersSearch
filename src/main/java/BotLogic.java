@@ -27,7 +27,16 @@ public class BotLogic {
             case TEACHER:
                 try{
                     Teacher teacher = teacherService.getTeacherByName(message);
-                    return answerForTeacher.makeAnswer(teacher);
+                    try {
+                        String timeTable = teacherService.getTeacherSchedule(message);
+                        return answerForTeacher.makeAnswer(teacher) + "\n\n" + "РВСПИСАНИЕ ПАР:" + "\n" + timeTable;
+                    }catch (net.fortuna.ical4j.data.ParserException e){
+                        e.printStackTrace();
+                        e.printStackTrace();
+                    }
+                    catch (java.io.IOException e){
+                        e.printStackTrace();
+                    }
                 } catch (RuntimeException error){
                     return "Я не знаю такого преподователя";
                 }

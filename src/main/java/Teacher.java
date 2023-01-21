@@ -6,6 +6,7 @@ public class Teacher {
     private String address;
     private String numberPhone;
     private String email;
+    private String ID = "";
 
     Teacher() {
         this.name = "";
@@ -14,6 +15,7 @@ public class Teacher {
         this.address = "";
         this.numberPhone = "";
         this.email = "";
+        this.ID = "";
     }
 
     Teacher(String _name, String _personalLink, String _address, String _numberPhone,

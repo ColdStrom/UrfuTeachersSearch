@@ -7,7 +7,7 @@ import java.util.HashMap;
 
 public class MyAmazingBot extends TelegramLongPollingBot {
 
-    private String token = System.getenv("TELEGRAM_BOT_TOKEN");
+    private final String token = System.getenv("TELEGRAM_BOT_TOKEN");
     private BotLogic botLogic = new BotLogic();
 
     @Override
