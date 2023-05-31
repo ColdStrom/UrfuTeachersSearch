@@ -7,8 +7,9 @@ import java.util.HashMap;
 public class Main {
     public static void main(String[] args) {
         try {
+            var bot = new MyAmazingBot();
             TelegramBotsApi botsApi = new TelegramBotsApi(DefaultBotSession.class);
-            botsApi.registerBot(new MyAmazingBot());
+            botsApi.registerBot(bot);
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }

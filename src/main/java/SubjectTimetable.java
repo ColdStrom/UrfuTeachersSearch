@@ -66,5 +66,4 @@ public class SubjectTimetable {
     public void setTimeStart(String timeStart) {
         this.timeStart = timeStart;
     }
-
 }

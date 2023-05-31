@@ -1,7 +1,6 @@
-// todo развести логику учителей и сервиса
-//import javax.validation.valueextraction.ValueExtractorDeclarationException;
 import net.fortuna.ical4j.data.ParserException;
-import org.checkerframework.checker.units.qual.A;
+import org.apache.commons.lang3.StringUtils;
+
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.*;
@@ -15,7 +14,9 @@ public class TeacherService {
     private HashMap<String, Teacher> teachers;
     private ArrayList<String> loadedSymbols;
     private ParsPageTeachers parsPageTeachers;
-    private static HashMap<String, Integer> bordersMonths = new HashMap<>();
+
+    private ArrayList<PossibleTeacher> possibleTeacherNames;
+    private static final HashMap<String, Integer> bordersMonths = new HashMap<>();
     {
         bordersMonths.put("01", 31);
         bordersMonths.put("02", 28);
@@ -36,6 +37,7 @@ public class TeacherService {
         teachers = new HashMap<String, Teacher>();
         parsPageTeachers = new ParsPageTeachers();
         loadedSymbols = new ArrayList<String>();
+        possibleTeacherNames = new ArrayList<>();
     }
 
     public Teacher getTeacherByName(String name) {
@@ -52,6 +54,8 @@ public class TeacherService {
                 return teachers.get(nameTeacher);
             }
         }
+        System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+        findSimilarTeacherNames(name);
         throw new RuntimeException("Я не знаю такого преподователя(");
     }
 
@@ -107,47 +111,6 @@ public class TeacherService {
         return permutations;
     }
 
-    private static String fromUnicodeToString(String _unicodeSubsequence) {
-        Set<String> hexItems = new HashSet<>();
-        String unicodeSubsequence = _unicodeSubsequence.replace("\\", " ");
-        Matcher m = Pattern.compile(" u[a-fA-f0-9]{4}").matcher(unicodeSubsequence);
-        while (m.find()) {
-            hexItems.add(m.group());
-        }
-
-        for (String unicodeHex : hexItems) {
-            int hexVal = Integer.parseInt(unicodeHex.substring(2), 16);
-            unicodeSubsequence = unicodeSubsequence.replace(unicodeHex, "" + ((char) hexVal));
-        }
-        return unicodeSubsequence;
-    }
-
-    private static Vector<String> parseData(String data) {
-        Vector<String> teachersNamesID = new Vector<>();
-        int indexValue = 0;
-        int indexData = 0;
-        while (true) {
-            indexValue = data.indexOf("value", indexValue + 1);
-            indexData = data.indexOf("data", indexData + 1);
-
-            if (indexData == -1 || indexValue == -1)
-                break;
-
-            String unicodeNameTeacher = data.substring(indexValue + 9, indexData - 4);
-            unicodeNameTeacher.replace("/", " ");
-
-            StringBuilder temp = new StringBuilder();
-            temp.append(fromUnicodeToString(unicodeNameTeacher));
-            temp.append("   ");
-            temp.append(data.substring(indexData + 6, (data.indexOf("}", indexData))));
-
-            String _temp = new String();
-            _temp = temp.toString();
-            teachersNamesID.add(_temp);
-        }
-        return teachersNamesID;
-    }
-
     public static String getTeacherId(String _nameTeacher) {
         String[] nameTeacher = _nameTeacher.split(" ");
         TimetableConnecting timetableConnecting = new TimetableConnecting();
@@ -200,14 +163,19 @@ public class TeacherService {
             _date = (Integer.parseInt(year) + 1) + "01" + "01";
         }
         else if (Integer.parseInt(day) < bordersMonths.get(month)){
-            _date = year + month + (Integer.parseInt(day) + 1);
+            if (Integer.parseInt(day) < 10){
+                _date = year + month + "0" + (Integer.parseInt(day) + 1);
+            } else {
+                _date = year + month + (Integer.parseInt(day) + 1);
+            }
+
         } else {
-            _date = year + (Integer.parseInt(month) + 1) + "01";
+            _date = year + "0" + (Integer.parseInt(month) + 1) + "01";
         }
         return _date;
     }
 
-    public static String getTeacherSchedule(String nameTeacher) throws ParserException, IOException {
+    public String getTeacherSchedule(String nameTeacher) throws ParserException, IOException {
         String ID = getTeacherId(nameTeacher);
         ParsTimetable parsTimetable = new ParsTimetable();
         LocalDate _date = LocalDate.now();
@@ -215,20 +183,24 @@ public class TeacherService {
         ArrayList<SubjectTimetable> timetable = parsTimetable.parsingTimetable(ID, date);
         sortArrayListSubjectTimetable(timetable);
         String result = new String();
+
         int day = 0;
         for (int i = 0; i < 13; i++) {
-            result += date.substring(6,8) + "." + date.substring(4,6) + "." + date.substring(0,3) + ":" + "\n";
+            System.out.println(date);
+
+            result += date.substring(6,8) + "." + date.substring(4,6) + "." + date.substring(0,4) + ":" + "\n";
             if (day == timetable.size()){
                 for (int j = 0; j < i - day; j++){
                     date = dateNormalization(date);
-                    result += "\t" + "В этот день у преподавателя нету пар" + "\n";
-                    result += date.substring(6,8) + "." + date.substring(4,6) + "." + date.substring(0,3) + ":" + "\n";
+                    result += "\t" + "В этот день у преподавателя нет пар" + "\n";
+                    result += date.substring(6,8) + "." + date.substring(4,6) + "." + date.substring(0,4) + ":" + "\n";
                 }
-                result +=  "\t" + "В этот день у преподавателя нету пар" + "\n";
+                result +=  "\t" + "В этот день у преподавателя нет пар" + "\n";
                 break;
             }
+
             if (!date.equals(timetable.get(day).getTimeStart().substring(0, 8))) {
-                result += "\t" + "В этот день у преподавателя нету пар" + "\n";
+                result += "\t" + "В этот день у преподавателя нет пар" + "\n";
                 date = dateNormalization(date);
             } else {
                 while (date.equals(timetable.get(day).getTimeStart().substring(0, 8))){
@@ -242,5 +214,92 @@ public class TeacherService {
             }
         }
         return result;
+    }
+
+    private static String fromUnicodeToString(String _unicodeSubsequence) {
+        Set<String> hexItems = new HashSet<>();
+        String unicodeSubsequence = _unicodeSubsequence.replace("\\", " ");
+        Matcher m = Pattern.compile(" u[a-fA-f0-9]{4}").matcher(unicodeSubsequence);
+        while (m.find()) {
+            hexItems.add(m.group());
+        }
+
+        for (String unicodeHex : hexItems) {
+            int hexVal = Integer.parseInt(unicodeHex.substring(2), 16);
+            unicodeSubsequence = unicodeSubsequence.replace(unicodeHex, "" + ((char) hexVal));
+        }
+        return unicodeSubsequence;
+    }
+
+    private static Vector<String> parseData(String data) {
+        Vector<String> teachersNamesID = new Vector<>();
+        int indexValue = 0;
+        int indexData = 0;
+        while (true) {
+            indexValue = data.indexOf("value", indexValue + 1);
+            indexData = data.indexOf("data", indexData + 1);
+
+            if (indexData == -1 || indexValue == -1)
+                break;
+
+            String unicodeNameTeacher = data.substring(indexValue + 9, indexData - 4);
+            unicodeNameTeacher.replace("/", " ");
+
+            StringBuilder temp = new StringBuilder();
+            temp.append(fromUnicodeToString(unicodeNameTeacher));
+            temp.append("   ");
+            temp.append(data.substring(indexData + 6, (data.indexOf("}", indexData))));
+
+            String _temp = new String();
+            _temp = temp.toString();
+            teachersNamesID.add(_temp);
+        }
+        return teachersNamesID;
+    }
+
+    private double findSimilarity(String firstName, String secondName) {
+        double maxLength = Double.max(firstName.length(), secondName.length());
+        if (maxLength > 0) {
+//            firstName = firstName.toLowerCase(Locale.ROOT);
+//            secondName = secondName.toLowerCase(Locale.ROOT);
+            return (maxLength - StringUtils.getLevenshteinDistance(firstName, secondName)) / maxLength;
+        }
+        return 1.0;
+    }
+
+    private void findSimilarTeacherNames(String name){
+        var permutationsName = permutations(name);
+        for (var pair: teachers.entrySet()) {
+            for (var o : permutationsName){
+                var tempName = pair.getKey();
+                var similarity = findSimilarity(tempName, o);
+                updatePossibleTeacherNames(tempName, similarity);
+            }
+        }
+    }
+    private void updatePossibleTeacherNames(String name, double similarity){
+        if (possibleTeacherNames.size() < 2){
+            possibleTeacherNames.add(new PossibleTeacher(name, similarity));
+            return;
+        }
+        if (possibleTeacherNames.get(0).levenshteinDistance < similarity){
+            if (Objects.equals(possibleTeacherNames.get(0).nameTeacher, name)){
+                return;
+            }
+            possibleTeacherNames.add(0, new PossibleTeacher(name, similarity));
+        } else if (possibleTeacherNames.get(1).levenshteinDistance < similarity) {
+            if (Objects.equals(possibleTeacherNames.get(1).nameTeacher, name)){
+                return;
+            }
+            possibleTeacherNames.add(1, new PossibleTeacher(name, similarity));
+        }
+    }
+
+    public ArrayList<PossibleTeacher> getPossibleTeacherNames() {
+        return possibleTeacherNames;
+    }
+
+    public void setPossibleTeacherNames(ArrayList<PossibleTeacher> possibleTeacherNames) {
+        this.possibleTeacherNames = possibleTeacherNames;
     }
 }

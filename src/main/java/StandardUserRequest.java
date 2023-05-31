@@ -4,4 +4,3 @@ public class StandardUserRequest {
     public static String joke = "/joke";
 
 }
-//

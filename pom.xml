@@ -21,12 +21,17 @@
             <version>1.15.3</version>
         </dependency>
 
-
         <dependency>
             <groupId>org.telegram</groupId>
             <artifactId>telegrambots</artifactId>
             <version>6.1.0</version>
         </dependency>
+
+<!--        <dependency>-->
+<!--            <groupId>org.telegram</groupId>-->
+<!--            <artifactId>telegrambots</artifactId>-->
+<!--            <version>4.0.0</version>-->
+<!--        </dependency>-->
 
         <dependency>
             <groupId>javax.cache</groupId>

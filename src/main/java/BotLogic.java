@@ -1,3 +1,5 @@
+import javax.cache.CacheException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Objects;
 
@@ -27,18 +29,23 @@ public class BotLogic {
             case TEACHER:
                 try{
                     Teacher teacher = teacherService.getTeacherByName(message);
-                    try {
-                        String timeTable = teacherService.getTeacherSchedule(message);
-                        return answerForTeacher.makeAnswer(teacher) + "\n\n" + "РВСПИСАНИЕ ПАР:" + "\n" + timeTable;
-                    }catch (net.fortuna.ical4j.data.ParserException e){
+                    teacher.printTeacher();
+                    try{
+                        String timetable = teacherService.getTeacherSchedule(message);
+                        return answerForTeacher.makeAnswer(teacher) + "\n\n" + "Расписание пар:" + "\n" + timetable;
+                    } catch (net.fortuna.ical4j.data.ParserException e){
                         e.printStackTrace();
+                    } catch (java.io.IOException e){
                         e.printStackTrace();
-                    }
-                    catch (java.io.IOException e){
+                    } catch (CacheException e){
+                        e.printStackTrace();
+                    } catch (RuntimeException e){
                         e.printStackTrace();
                     }
                 } catch (RuntimeException error){
-                    return "Я не знаю такого преподователя";
+                    var names = "/" + teacherService.getPossibleTeacherNames().get(0).nameTeacher + "/" +teacherService.getPossibleTeacherNames().get(1).nameTeacher;
+                    teacherService.setPossibleTeacherNames(new ArrayList<PossibleTeacher>());
+                    return names;
                 }
         }
         return StandardAnswer.defaultAnswer;
